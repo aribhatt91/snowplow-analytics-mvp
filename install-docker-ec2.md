@@ -1,0 +1,49 @@
+```
+
+# Uninstall old installation of docker
+sudo systemctl stop docker
+sudo apt remove docker.io
+sudo apt purge docker.io
+
+# Fresh install
+sudo apt update
+sudo apt install ca-certificates curl
+
+# Install keyring directory
+sudo install -m 0755 -d /etc/apt/keyrings
+# Download Docker's signing key:
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+
+# Make it readable
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add Docker's repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+
+# Verify Compose is now available
+apt-cache policy docker-ce docker-compose-plugin
+
+# Install Docker engine + compose
+sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Verify
+docker --version
+docker compose version
+
+# Make sure Docker starts automatically
+sudo systemctl enable --now docker
+
+# Check status
+sudo systemctl status docker
+
+# In the root folder of the project
+docker ps
+
+docker compose ps
+
+# Check Logs
+docker compose logs --tail=100
+
+```

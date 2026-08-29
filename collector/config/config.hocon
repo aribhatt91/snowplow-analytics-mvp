@@ -1,0 +1,183 @@
+collector {
+
+  ######################################################################
+  # 1. LICENSE
+  #
+  # Required to run the current Snowplow Collector.
+  ######################################################################
+
+  license {
+    accept = true
+  }
+
+
+  ######################################################################
+  # 2. COLLECTOR HTTP SERVER
+  ######################################################################
+
+  # Listen on all network interfaces inside the EC2 instance/container.
+  #
+  # This allows Docker to expose the Collector outside the container.
+  interface = "0.0.0.0"
+
+
+  # The Collector listens for incoming Snowplow HTTP requests on this port.
+  port = 8080
+
+
+  ######################################################################
+  # 3. NETWORK SETTINGS
+  #
+  # We explicitly define these for clarity, although the defaults are
+  # already suitable for an MVP.
+  #
+  # These can later be tuned based on traffic volume and infrastructure.
+  ######################################################################
+
+  networking {
+
+    # Maximum number of concurrent active connections.
+    maxConnections = 1024
+
+    # Maximum time an idle connection can remain open.
+    idleTimeout = 610 seconds
+
+    # Maximum time allowed to receive the request body.
+    bodyReadTimeout = 25 seconds
+
+    # Maximum time allowed before response headers are generated.
+    responseHeaderTimeout = 30 seconds
+
+    # Maximum permitted HTTP request line size.
+    maxRequestLineLength = 20480
+
+    # Maximum permitted HTTP header size.
+    maxHeadersLength = 40960
+
+    # Maximum size of a single event within a request payload.
+    maxPayloadSize = 1048576
+
+    # Reject requests exceeding this total payload size.
+    dropPayloadSize = 2097152
+  }
+
+
+  ######################################################################
+  # 4. KINESIS STREAM CONFIGURATION
+  ######################################################################
+
+  streams {
+
+    ####################################################################
+    # GOOD STREAM
+    #
+    # Successfully collected events are written here.
+    ####################################################################
+
+    # good = "snowplow-raw-good"
+
+
+    ####################################################################
+    # BAD STREAM
+    #
+    # Events/requests that cannot be written successfully to the
+    # normal Kinesis stream are written here.
+    #
+    # Example:
+    # - Event exceeds the Kinesis size limit
+    ####################################################################
+
+    bad = "snowplow-raw-bad"
+
+
+    ####################################################################
+    # GOOD STREAM AWS CONFIGURATION
+    ####################################################################
+
+    good {
+        name = "snowplow-raw-good"
+
+        # IMPORTANT:
+        # Replace this with the AWS region where your EC2 and Kinesis
+        # resources are deployed.
+        region = "eu-north-1"
+
+        # Use the IAM Role attached to the EC2 instance.
+        #
+        # No AWS access key or secret key is stored in this file.
+        aws {
+            accessKey = "iam"
+            secretKey = "iam"
+        }
+
+        # Number of asynchronous threads used when writing to Kinesis.
+        threadPoolSize = 10
+    }
+
+
+    ####################################################################
+    # BAD STREAM AWS CONFIGURATION
+    ####################################################################
+
+    bad {
+
+      region = "eu-north-1"
+
+      # Again, use the EC2 IAM Role.
+      aws {
+        accessKey = "iam"
+        secretKey = "iam"
+      }
+
+      threadPoolSize = 10
+    }
+
+
+    ####################################################################
+    # INTERNAL BUFFER
+    #
+    # The Collector temporarily buffers incoming events before sending
+    # batches to Kinesis.
+    #
+    # These official defaults are appropriate for the MVP.
+    ####################################################################
+
+    buffer {
+
+      # Maximum combined size of buffered events.
+      byteLimit = 3145728
+
+      # Maximum number of events before flushing.
+      recordLimit = 500
+
+      # Maximum time before buffered events are flushed.
+      timeLimit = 5000
+    }
+
+
+    ####################################################################
+    # RETRY / BACKOFF
+    #
+    # Used if Kinesis temporarily rejects or cannot accept writes.
+    ####################################################################
+
+    backoffPolicy {
+
+      minBackoff = 3000
+      maxBackoff = 600000
+    }
+  }
+
+
+  ######################################################################
+  # 5. TELEMETRY
+  #
+  # Disable Snowplow telemetry for this MVP.
+  #
+  # Your organisation can revisit this decision later.
+  ######################################################################
+
+  telemetry {
+    disable = true
+  }
+}

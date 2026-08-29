@@ -1,0 +1,69 @@
+services:
+    snowplow-collector:
+        ####################################################################
+        # OFFICIAL SNOWPLOW COLLECTOR IMAGE
+        #
+        # Pin the version rather than using "latest".
+        #
+        # This gives us reproducible deployments.
+        ####################################################################
+
+        image: snowplow/scala-stream-collector-kinesis:3.7.0
+
+        ####################################################################
+        # CONTAINER NAME
+        #
+        # Makes it easier to identify when debugging with:
+        #
+        # docker ps
+        ####################################################################
+
+        container_name: snowplow-collector
+
+        ####################################################################
+        # RESTART POLICY
+        #
+        # Automatically restart if:
+        # - the Collector crashes
+        # - Docker restarts
+        # - EC2 reboots
+        #
+        # This is suitable for our MVP and useful for production too.
+        ####################################################################
+
+        restart: unless-stopped
+
+        ####################################################################
+        # PORT MAPPING
+        #
+        # Format:
+        #
+        # HOST_PORT:CONTAINER_PORT
+        #
+        # The EC2 machine exposes port 8080.
+        # Docker forwards it to port 8080 inside the Collector container.
+        ####################################################################
+
+        ports:
+            - "8080:8080"
+
+        ####################################################################
+        # CONFIGURATION FILE
+        #
+        # The configuration is maintained by us outside Docker.
+        #
+        # Docker mounts it into the Collector container as read-only.
+        ####################################################################
+
+        volumes:
+            - ./config/config.hocon:/snowplow/config.hocon:ro
+
+        ####################################################################
+        # START COMMAND
+        #
+        # Tell the Snowplow Collector where to find the configuration file.
+        ####################################################################
+
+        command:
+            - "--config"
+            - "/snowplow/config.hocon"
