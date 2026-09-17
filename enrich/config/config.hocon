@@ -1,0 +1,50 @@
+input {
+
+  # Name of this Enrich application.
+  # Snowplow/KCL uses this for application state/checkpointing.
+  appName = "snowplow-mvp-enrich"
+
+  # Raw Collector payload stream.
+  # Critical connection between collector and enrich
+  streamName = "snowplow-mvp-raw"
+
+  # Start consuming new events.
+  initialPosition {
+    type = "LATEST"
+  }
+
+  # Standard Kinesis polling mode.
+  retrievalMode {
+    type = "Polling"
+    maxRecords = 10000
+  }
+}
+
+
+output {
+
+  # Successfully enriched events.
+  good {
+    streamName = "snowplow-mvp-enriched-good"
+
+    # Keep related events consistently partitioned.
+    partitionKey = "event_id"
+  }
+
+
+  # Failed events represented in enriched-event format.
+  failed {
+    streamName = "snowplow-mvp-enriched-failed"
+  }
+
+
+  # Snowplow bad-row JSON output.
+  bad {
+    streamName = "snowplow-mvp-bad"
+  }
+}
+
+
+telemetry {
+  disable = true
+}

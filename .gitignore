@@ -4,6 +4,7 @@
 *.tfstate
 *.tfstate.*
 .terraform/
+.terraform.lock.hcl
 keys
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.

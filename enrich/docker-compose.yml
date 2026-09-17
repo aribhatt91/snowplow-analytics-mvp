@@ -1,0 +1,20 @@
+services:
+    snowplow-enrich:
+        image: snowplow/snowplow-enrich-kinesis:6.13.1
+
+        container_name: snowplow-mvp-enrich
+
+        restart: unless-stopped
+
+        volumes:
+            - ./config/config.hocon:/snowplow/config.hocon:ro
+            - ./resolver.json:/snowplow/resolver.json:ro
+            - ./enrichments:/snowplow/enrichments:ro
+
+        command:
+            - "--config"
+            - "/snowplow/config.hocon"
+            - "--iglu-config"
+            - "/snowplow/resolver.json"
+            - "--enrichments"
+            - "/snowplow/enrichments"

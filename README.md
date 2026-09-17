@@ -1,3 +1,31 @@
+# Architecture
+
+```
+Browser
+   │
+   ▼
+Snowplow Collector
+   │
+   ▼
+┌───────────────────────────┐
+│ RAW Kinesis Stream        │
+│ snowplow-mvp-raw          │
+└─────────────┬─────────────┘
+              │
+              ▼
+      Snowplow Enrich
+              │
+       ┌──────┼─────────┐
+       │      │         │
+       ▼      ▼         ▼
+ Enriched   Failed      Bad
+   events    events    JSON errors
+       │
+       ▼
+Kinesis → Firehose → S3
+
+```
+
 # Setup Terraform Config
 
 ### Generate SSH Key
@@ -94,21 +122,35 @@ You must attach a role to the EC2 instance with the following policy:
 
 ```
 {
-	"Version": "2012-10-17",
-	"Statement": [
-		{
-			"Sid": "WriteSnowplowEventsToKinesis",
-			"Effect": "Allow",
-			"Action": [
-				"kinesis:PutRecord",
-				"kinesis:PutRecords"
-			],
-			"Resource": [
-				"arn:aws:kinesis:eu-north-1:<AWS-ACCOUNT-ID>:stream/snowplow-raw-good",
-				"arn:aws:kinesis:eu-north-1:<AWS-ACCOUNT-ID>:stream/snowplow-raw-bad"
-			]
-		}
-	]
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+        "Sid": "ReadRawSnowplowStream",
+        "Effect": "Allow",
+        "Action": [
+            "kinesis:GetRecords",
+            "kinesis:GetShardIterator",
+            "kinesis:DescribeStream",
+            "kinesis:DescribeStreamSummary",
+            "kinesis:ListShards"
+        ],
+        "Resource": "arn:aws:kinesis:ap-south-1:YOUR_ACCOUNT_ID:stream/snowplow-mvp-raw"
+        },
+        {
+        "Sid": "WriteSnowplowProcessedStreams",
+        "Effect": "Allow",
+        "Action": [
+            "kinesis:DescribeStream",
+            "kinesis:DescribeStreamSummary",
+            "kinesis:PutRecord",
+            "kinesis:PutRecords"
+        ],
+        "Resource": [
+            "arn:aws:kinesis:ap-south-1:YOUR_ACCOUNT_ID:stream/snowplow-mvp-enriched-good",
+            "arn:aws:kinesis:ap-south-1:YOUR_ACCOUNT_ID:stream/snowplow-mvp-enriched-bad"
+        ]
+        }
+    ]
 }
 ```
 
