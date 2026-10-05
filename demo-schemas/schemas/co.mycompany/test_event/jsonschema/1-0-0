@@ -1,0 +1,57 @@
+{
+    "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+    "description": "A ride-sharing trip event.",
+    "self": {
+        "vendor": "com.mycompany",
+        "name": "trip_event",
+        "format": "jsonschema",
+        "version": "1-0-0"
+    },
+    "type": "object",
+    "properties": {
+        "trip_id": {
+            "type": "string",
+            "description": "Unique identifier for the trip.",
+            "minLength": 1
+        },
+        "driver_id": {
+            "type": "string",
+            "description": "Unique identifier for the driver.",
+            "minLength": 1
+        },
+        "rider_id": {
+            "type": "string",
+            "description": "Unique identifier for the rider.",
+            "minLength": 1
+        },
+        "pickup_latitude": {
+            "type": "number"
+        },
+        "pickup_longitude": {
+            "type": "number"
+        },
+        "dropoff_latitude": {
+            "type": "number"
+        },
+        "dropoff_longitude": {
+            "type": "number"
+        },
+        "trip_status": {
+            "type": "string",
+            "enum": [
+                "requested",
+                "accepted",
+                "started",
+                "completed",
+                "cancelled"
+            ]
+        }
+    },
+    "required": [
+        "trip_id",
+        "driver_id",
+        "rider_id",
+        "trip_status"
+    ],
+    "additionalProperties": false
+}

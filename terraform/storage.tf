@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "snowplow_data_lake" {
-  bucket = var.snowplow_datalake_bucket_name
+  bucket = var.datalake_bucket_name
 
   tags = {
     Name        = "snowplow-data-lake"
@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "snowplow_data_lake" {
 }
 
 resource "aws_s3_bucket" "snowplow_schema_repository" {
-  bucket = var.snowplow_schemas_bucket_name
+  bucket = var.schemas_bucket_name
 
   tags = {
     Name        = "snowplow-schema-repo"

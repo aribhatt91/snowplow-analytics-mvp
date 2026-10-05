@@ -1,15 +1,12 @@
 "use client";
 import { useEffect } from "react";
-import {
-    initializeSnowplow,
-    trackSnowplowPageView,
-} from "@/lib/analytics/tracker";
+import SnowplowTracker from "@/lib/analytics/tracker";
 
 function SnowplowAnalytics() {
     useEffect(() => {
         console.log("Initializing Snowplow analytics");
-        initializeSnowplow();
-        trackSnowplowPageView();
+        const tracker = SnowplowTracker.getInstance();
+        tracker.trackPageView();
     }, []);
     return null;
 }

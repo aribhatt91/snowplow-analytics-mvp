@@ -1,3 +1,9 @@
+# 1. LICENSE
+# Required to run the current Snowplow Enrich application.
+license {
+  accept = true
+}
+
 input {
 
   # Name of this Enrich application.
@@ -6,7 +12,10 @@ input {
 
   # Raw Collector payload stream.
   # Critical connection between collector and enrich
-  streamName = "snowplow-mvp-raw"
+  streamName = "snowplow-mvp-collector-good"
+
+  # The AWS region where your Kinesis streams reside.
+  region = "eu-north-1"
 
   # Start consuming new events.
   initialPosition {
@@ -25,7 +34,9 @@ output {
 
   # Successfully enriched events.
   good {
+    type = "Kinesis"
     streamName = "snowplow-mvp-enriched-good"
+    region = "eu-north-1"
 
     # Keep related events consistently partitioned.
     partitionKey = "event_id"
@@ -34,13 +45,17 @@ output {
 
   # Failed events represented in enriched-event format.
   failed {
-    streamName = "snowplow-mvp-enriched-failed"
+    type = "Kinesis"
+    region = "eu-north-1"
+    streamName = "snowplow-mvp-events-bad"
   }
 
 
   # Snowplow bad-row JSON output.
   bad {
-    streamName = "snowplow-mvp-bad"
+    type = "Kinesis"
+    region = "eu-north-1"
+    streamName = "snowplow-mvp-events-bad"
   }
 }
 

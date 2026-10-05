@@ -2,45 +2,41 @@
 
 import { newTracker, trackPageView } from "@snowplow/browser-tracker";
 
-let initialized = false;
+class SnowplowTracker {
+    private static instance: SnowplowTracker;
 
-/**
- * Initialise the Snowplow tracker.
- *
- * This function is safe to call multiple times.
- * The tracker will only be created once.
- */
-export function initializeSnowplow() {
-    if (initialized) {
-        return;
+    private constructor() {
+        const collectorUrl =
+            process.env.NEXT_PUBLIC_SNOWPLOW_COLLECTOR_ENDPOINT;
+
+        if (!collectorUrl) {
+            console.error("Snowplow collector URL is not configured");
+
+            return;
+        }
+
+        newTracker("sp", collectorUrl, {
+            appId: "snowplow-mvp",
+        });
+
+        console.log("Snowplow tracker initialized:", collectorUrl);
     }
 
-    const collectorUrl = process.env.NEXT_PUBLIC_SNOWPLOW_COLLECTOR_ENDPOINT;
+    public static getInstance(): SnowplowTracker {
+        if (!SnowplowTracker.instance) {
+            SnowplowTracker.instance = new SnowplowTracker();
+        }
 
-    if (!collectorUrl) {
-        console.error("Snowplow collector URL is not configured");
-
-        return;
+        return SnowplowTracker.instance;
     }
 
-    newTracker("sp", collectorUrl, {
-        appId: "snowplow-mvp",
-    });
-
-    initialized = true;
-
-    console.log("Snowplow tracker initialized:", collectorUrl);
+    public trackPageView() {
+        if (!SnowplowTracker.instance) {
+            console.warn("SnowplowTracker instance is not initialized");
+            return;
+        }
+        trackPageView();
+    }
 }
 
-/**
- * Track a Snowplow page view.
- */
-export function trackSnowplowPageView() {
-    if (!initialized) {
-        console.warn("Snowplow has not been initialized");
-
-        return;
-    }
-
-    trackPageView();
-}
+export default SnowplowTracker;

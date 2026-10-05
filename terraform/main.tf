@@ -1,16 +1,3 @@
-# Core config - get AWS provider
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-    }
-  }
-}
-
-provider "aws" {
-  region = var.aws_region
-}
-
 data "aws_vpc" "default" {
   default = true
 }
@@ -39,7 +26,7 @@ data "aws_ami" "ubuntu" {
   }
 
   filter {
-    name = "virtualization-type"
+    name   = "virtualization-type"
     values = ["hvm"]
   }
 }
@@ -54,9 +41,9 @@ resource "aws_security_group" "snowplow_collector" {
   ingress {
     description = "SSH"
 
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    from_port = 22
+    to_port   = 22
+    protocol  = "tcp"
 
     cidr_blocks = var.allowed_cidr_blocks_ssh
   }
@@ -64,17 +51,17 @@ resource "aws_security_group" "snowplow_collector" {
   ingress {
     description = "Snowplow Collector"
 
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
+    from_port = 8080
+    to_port   = 8080
+    protocol  = "tcp"
 
     cidr_blocks = var.allowed_cidr_blocks_collector
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -83,8 +70,8 @@ resource "aws_security_group" "snowplow_collector" {
 # Create an EC2 Key pair - add the keys to the specific path
 
 resource "aws_key_pair" "snowplow" {
-  key_name   = "snowplow-mvp-key-v2"
-  public_key = file("${path.module}/keys/snowplow-mvp-key-v2.pub")
+  key_name   = "snowplow-mvp-key"
+  public_key = file("${path.module}/keys/snowplow-mvp-key.pub")
 }
 
 resource "aws_instance" "snowplow_collector" {

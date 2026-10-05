@@ -68,52 +68,25 @@ collector {
 
     streams {
 
-        ####################################################################
-        # COLLECTOR GOOD STREAM
-        #
         # Successfully collected events are written here.
-        #
-        # This is the INPUT stream for Snowplow Enrich.
-        ####################################################################
+        good = "snowplow-mvp-collector-good"
 
-        good {
+        # Used for failures occurring at the Collector/output stage.
+        bad = "snowplow-mvp-events-bad"
 
-            name = "snowplow-mvp-raw"
+        # AWS Kinesis connection configuration for both streams
+        sink {
+            enabled = kinesis
 
             region = "eu-north-1"
 
             # Use the IAM Role attached to EC2.
-            #
-            # No real AWS credentials are stored here.
             aws {
                 accessKey = "iam"
                 secretKey = "iam"
             }
 
             # Number of asynchronous threads used to write to Kinesis.
-            threadPoolSize = 10
-        }
-
-
-        ####################################################################
-        # COLLECTOR BAD STREAM
-        #
-        # Used for failures occurring at the Collector/output stage.
-        #
-        # This is intentionally DIFFERENT from the Enrich bad-event stream.
-        ####################################################################
-
-        bad {
-
-            name = "snowplow-mvp-collector-bad"
-
-            region = "eu-north-1"
-
-            aws {
-                accessKey = "iam"
-                secretKey = "iam"
-            }
-
             threadPoolSize = 10
         }
 
